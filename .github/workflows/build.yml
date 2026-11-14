@@ -1,1 +1,48 @@
 
+name: Build Clicker Lenda
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos
+        uses: actions/checkout@v4
+
+      - name: Extrair projeto
+        run: unzip ClickerLenda-Tudo-Junto.zip
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Configurar Android
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar SDK
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Compilar APK
+        working-directory: ClickerLenda
+        run: gradle assembleDebug
+
+      - name: Salvar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Clicker-Lenda-APK
+          path: ClickerLenda/app/build/outputs/apk/debug/app-debug.apk
+          
